@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Communication Board">
+  <rect width="512" height="512" rx="112" fill="#1F2A30"/>
+  <path d="M128 120h256a40 40 0 0 1 40 40v152a40 40 0 0 1-40 40H244l-84 72v-72h-32a40 40 0 0 1-40-40V160a40 40 0 0 1 40-40z" fill="#fff"/>
+  <rect x="140" y="188" width="64" height="96" rx="16" fill="#C62828"/>
+  <rect x="224" y="188" width="64" height="96" rx="16" fill="#3867B7"/>
+  <rect x="308" y="188" width="64" height="96" rx="16" fill="#2E7D32"/>
+</svg>

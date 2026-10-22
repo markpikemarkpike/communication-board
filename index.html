@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' https://static.arasaac.org; connect-src https://api.arasaac.org; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Communication Board</title>
+<meta name="description" content="A free tap-to-speak picture board. Tap a picture and the device says it out loud. Fits one tablet screen. Works offline. Change any tile.">
+<meta name="theme-color" content="#1F2A30">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Board">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="said">
+    <p id="saidText">Tap a picture to speak.</p>
+    <button type="button" id="again" class="again" disabled>Say again</button>
+  </div>
+  <nav class="tools" aria-label="Tools">
+    <button type="button" id="openDraw">Draw</button>
+    <button type="button" id="openHistory">History</button>
+    <button type="button" id="toggleEdit">Edit</button>
+    <button type="button" id="openSettings">Settings</button>
+  </nav>
+</header>
+
+<p id="editHint" class="edit-hint" hidden>Editing. Tap any tile to change it. Tap Done when you finish.</p>
+<p id="saveWarning" class="edit-hint" role="alert" hidden>This device could not save your changes. Open Settings and save a backup before you close the page.</p>
+
+<div id="scroll" class="scroll">
+  <main id="board" class="board"></main>
+  <footer id="credit" class="credit">
+    <p>Pictograms author: Sergio Palao. Origin: <a href="https://arasaac.org" target="_blank" rel="noopener">ARASAAC (http://www.arasaac.org)</a>. License: CC (BY-NC-SA). Owner: Government of Aragon (Spain).</p>
+  </footer>
+</div>
+
+<div id="pinned" class="pinned" hidden></div>
+
+<noscript><p class="noscript">This board needs JavaScript to run. Please turn it on in your browser settings.</p></noscript>
+
+<!-- Change or add a tile -->
+<dialog id="tileDialog" aria-labelledby="tileTitle">
+  <h2 id="tileTitle">Change this tile</h2>
+  <label class="field">Words on the tile
+    <input id="tileLabel" type="text" maxlength="40" autocomplete="off">
+  </label>
+  <label class="field">What it says out loud
+    <input id="tileSay" type="text" maxlength="160" autocomplete="off" placeholder="Leave empty to say the words on the tile">
+  </label>
+  <div class="field">
+    <span id="picLabel">Picture</span>
+    <div class="pic-row">
+      <div id="picNow" class="pic-now"></div>
+      <input id="picSearch" type="search" maxlength="60" autocomplete="off" placeholder="Search, for example: water" aria-labelledby="picLabel">
+      <button type="button" id="picGo">Search</button>
+    </div>
+    <p id="picStatus" class="hint" role="status"></p>
+    <div id="picResults" class="pic-results"></div>
+    <button type="button" id="picNone" class="quiet">Use words only, no picture</button>
+  </div>
+  <p id="tileError" class="error" role="alert"></p>
+  <div class="row" id="tileMoves">
+    <button type="button" id="tileEarlier" class="quiet">Move earlier</button>
+    <button type="button" id="tileLater" class="quiet">Move later</button>
+    <button type="button" id="tileDelete" class="danger">Delete tile</button>
+  </div>
+  <div class="row end">
+    <button type="button" id="tileCancel" class="quiet">Cancel</button>
+    <button type="button" id="tileSave" class="primary">Save</button>
+  </div>
+</dialog>
+
+<!-- Change or add a section -->
+<dialog id="sectionDialog" aria-labelledby="sectionTitle">
+  <h2 id="sectionTitle">Change this section</h2>
+  <label class="field">Name
+    <input id="sectionName" type="text" maxlength="40" autocomplete="off">
+  </label>
+  <label class="field">Color
+    <input id="sectionColor" type="color">
+  </label>
+  <label class="field">Where it sits
+    <select id="sectionRole">
+      <option value="">With the other sections</option>
+      <option value="urgent">Across the top</option>
+      <option value="pinned">Always on screen, along the bottom</option>
+    </select>
+  </label>
+  <p id="sectionError" class="error" role="alert"></p>
+  <div class="row" id="sectionMoves">
+    <button type="button" id="sectionEarlier" class="quiet">Move earlier</button>
+    <button type="button" id="sectionLater" class="quiet">Move later</button>
+    <button type="button" id="sectionDelete" class="danger">Delete section</button>
+  </div>
+  <div class="row end">
+    <button type="button" id="sectionCancel" class="quiet">Cancel</button>
+    <button type="button" id="sectionSave" class="primary">Save</button>
+  </div>
+</dialog>
+
+<!-- What has been said -->
+<dialog id="historyDialog" aria-labelledby="historyTitle">
+  <h2 id="historyTitle">History</h2>
+  <p class="hint">Tap a line to say it again. Nothing is saved. This list clears when the page closes.</p>
+  <div id="historyList" class="history-list"></div>
+  <div class="row end"><button type="button" id="historyClose" class="primary">Close</button></div>
+</dialog>
+
+<!-- Settings -->
+<dialog id="settingsDialog" aria-labelledby="settingsTitle">
+  <h2 id="settingsTitle">Settings</h2>
+
+  <h3>Voice</h3>
+  <label class="field">Voice
+    <select id="voice"></select>
+  </label>
+  <label class="field">Speed
+    <input id="rate" type="range" min="0.5" max="1.5" step="0.1">
+  </label>
+  <button type="button" id="tryVoice" class="quiet">Try it</button>
+
+  <h3>Tile size</h3>
+  <label class="field">Size
+    <select id="size">
+      <option value="fit">Fit everything on one screen, no scrolling</option>
+      <option value="small">Small</option>
+      <option value="medium">Medium</option>
+      <option value="large">Large, easier to tap</option>
+    </select>
+  </label>
+  <p class="hint">Small, Medium and Large scroll. A phone screen is too small to fit everything, so it always scrolls.</p>
+
+  <h3>Your board</h3>
+  <p class="hint">Your changes stay in this browser on this device. Save a backup to keep them safe or to copy them to another device.</p>
+  <div class="row">
+    <button type="button" id="backup" class="quiet">Save a backup</button>
+    <button type="button" id="restorePick" class="quiet">Load a backup</button>
+    <button type="button" id="print" class="quiet">Print</button>
+    <button type="button" id="startOver" class="danger">Start over</button>
+  </div>
+  <input id="restoreFile" type="file" accept="application/json,.json" hidden>
+  <p id="restoreStatus" class="hint" role="status"></p>
+  <button type="button" id="restoreGo" class="danger" hidden>Replace my board with this backup</button>
+
+  <h3>About</h3>
+  <p class="hint">A free, open-source picture board. It is a hobby project, and it has not been reviewed, cleared or tested as a medical device. Do not rely on it as the only way to call for help.</p>
+  <p class="hint">The code is MIT licensed: <a href="https://github.com/markpikemarkpike/communication-board" target="_blank" rel="noopener">github.com/markpikemarkpike/communication-board</a></p>
+  <p class="hint">The pictographic symbols used are the property of the Government of Aragón and have been created by Sergio Palao for ARASAAC (<a href="https://arasaac.org" target="_blank" rel="noopener">http://www.arasaac.org</a>), that distributes them under Creative Commons License BY-NC-SA.</p>
+
+  <div class="row end"><button type="button" id="settingsClose" class="primary">Close</button></div>
+</dialog>
+
+<!-- Write or draw with a finger -->
+<dialog id="draw" class="draw" aria-labelledby="drawTitle">
+  <div class="draw-bar">
+    <strong id="drawTitle">Write or draw</strong>
+    <div id="pens" class="pens" role="group" aria-label="Pen color">
+      <button type="button" class="pen" data-color="#1F2A30" aria-label="Black" aria-pressed="true"></button>
+      <button type="button" class="pen" data-color="#C62828" aria-label="Red" aria-pressed="false"></button>
+      <button type="button" class="pen" data-color="#3867B7" aria-label="Blue" aria-pressed="false"></button>
+      <button type="button" class="pen" data-color="#2E7D32" aria-label="Green" aria-pressed="false"></button>
+      <button type="button" class="pen eraser" data-color="#FFFFFF" aria-label="Eraser" aria-pressed="false"></button>
+    </div>
+    <label class="pen-size">Thickness <input id="penSize" type="range" min="2" max="24" value="6"></label>
+    <span class="spacer"></span>
+    <button type="button" id="drawClear">Clear</button>
+    <button type="button" id="drawClose" class="primary">Done</button>
+  </div>
+  <canvas id="canvas"></canvas>
+</dialog>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "Communication Board",
+  "short_name": "Board",
+  "description": "A free tap-to-speak picture board that works offline.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F3EE",
+  "theme_color": "#1F2A30",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
