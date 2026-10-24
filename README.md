@@ -2,9 +2,9 @@
 
 *A free tap-to-speak picture board. Tap a picture and the device says it out loud.*
 
-![The whole board on one tablet screen. The bar across the top reads I am in pain. Below it are colored groups of picture tiles named Right now, How I feel, Move me, Care, Around me, My things, People, Where it hurts, and How much, 1 to 10. A row along the bottom holds Yes, No, Stop, Thank you and I love you.](docs/board.png)
+![The whole board on one tablet screen. The bar across the top reads Tap a picture to speak. Below it are colored groups of picture tiles named Right now, How I feel, Move me, Care, Around me, My things, People, Where it hurts, and How much, 1 to 10. A row along the bottom holds Yes, No, Stop, Thank you and I love you.](docs/board.png)
 
-**Use it: [markpikemarkpike.github.io/communication-board](https://markpikemarkpike.github.io/communication-board/)**
+**Use it: [communication-board-demo.vercel.app](https://communication-board-demo.vercel.app)**
 
 ---
 
@@ -63,11 +63,11 @@ There are no accounts, no ads, no cookies and no tracking. I run no server and c
 
 Three outside services are involved, and each one sees your internet address, as any website does.
 
-- **GitHub** hosts the page.
+- **Vercel** hosts my copy of the page.
 - **ARASAAC** supplies the pictures. It sees which pictures your board loads, and what you search for. If you press Search with the box empty, it searches for the words on the tile.
 - **Your device's voice.** Most voices work on the device. A voice marked "needs internet" in Settings sends the words to whoever makes that voice, and it won't work offline.
 
-Other pages hosted at the same web address could read the saved board. That is true of my copy and of any copy you host beside other sites.
+Other pages hosted at the same web address could read the saved board. That matters if you host a copy beside other sites.
 
 ## Changing the code
 
@@ -98,7 +98,7 @@ A few things that will save you time:
 - The spacing numbers in `FIT` in `data.js` have to match the `.fit` rules in `style.css`.
 - To use different pictures, change `pictureUrl` and `searchUrl` in `data.js`, the address near the end of `sw.js`, and the security line at the top of `index.html`.
 
-To put up your own copy, fork this repo and turn on GitHub Pages in Settings. Then point the links in this file and in Settings at your copy.
+To put up your own copy on the web, fork this repo. In your copy, open **Settings**, then **Pages**, pick the **main** branch and save. GitHub shows you the address a minute or two later. Then point the links in this file and in Settings at your copy.
 
 ## Ways to make it better
 
